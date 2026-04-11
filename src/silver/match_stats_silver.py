@@ -6,12 +6,12 @@ import pyspark.sql.window as W
 # COMMAND ----------
 
 # pl_big_6.bronze.match_data
-df_match_data = spark.read.table("pl_big_6.bronze.match_data")
+df_match_data = spark.read.table("pl_big_6.bronze.transfer_data")
 # .where(F.to_date(F.col('created_at'))>=F.current_date())
 
 # COMMAND ----------
 
-display(df_match_data)
+display(df_match_data.count())
 
 # COMMAND ----------
 
