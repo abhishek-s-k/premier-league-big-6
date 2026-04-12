@@ -1,0 +1,87 @@
+{
+  "name": "PL_Big_6-Job",
+  "email_notifications": {
+    "on_start": [
+      "kulkarnis.abhishek@gmail.com"
+    ],
+    "on_success": [
+      "kulkarnis.abhishek@gmail.com"
+    ],
+    "on_failure": [
+      "kulkarnis.abhishek@gmail.com"
+    ],
+    "no_alert_for_skipped_runs": false
+  },
+  "webhook_notifications": {},
+  "notification_settings": {
+    "no_alert_for_skipped_runs": false,
+    "no_alert_for_canceled_runs": false
+  },
+  "timeout_seconds": 0,
+  "schedule": {
+    "quartz_cron_expression": "0 0 7 * * ?",
+    "timezone_id": "America/Chicago",
+    "pause_status": "PAUSED"
+  },
+  "max_concurrent_runs": 1,
+  "tasks": [
+    {
+      "task_key": "pl_data_ingest_to_bronze",
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/Repos/abhishek20122012@gmail.com/premier-league-big-6/src/bronze/source_csv_data_bronze",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "pl_data_silver_cleaned",
+      "depends_on": [
+        {
+          "task_key": "pl_data_ingest_to_bronze"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/Repos/abhishek20122012@gmail.com/premier-league-big-6/src/silver/merge_silver",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "pl_big_6_gold",
+      "depends_on": [
+        {
+          "task_key": "pl_data_silver_cleaned"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/Repos/abhishek20122012@gmail.com/premier-league-big-6/src/gold/match_stats_gold",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "webhook_notifications": {}
+    }
+  ],
+  "queue": {
+    "enabled": true
+  },
+  "parameters": [
+    {
+      "name": "source_data_list",
+      "default": "[\"match_data\",\"transfer_data\"]"
+    }
+  ],
+  "performance_target": "PERFORMANCE_OPTIMIZED"
+}
